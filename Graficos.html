@@ -269,7 +269,8 @@
       ["Chad",1.781,0.190,0.000,null],["United States",0.0,5.881,7.100,10.0]
     ];
 
-    const dataDash = raw.filter(d => d[1] > 0);
+    // CORRECCIÓN APLICADA AQUÍ: d[1] >= 0 en lugar de d[1] > 0
+    const dataDash = raw.filter(d => d[1] >= 0);
     dataDash.sort((a,b) => b[1]-a[1]);
 
     function switchTab(id) {

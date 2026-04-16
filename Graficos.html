@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Executive Trade Leadership Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0f172a; /* Slate 900 */
+            --accent: #4f46e5;  /* Indigo 600 */
+            --bg-body: #f8fafc; /* Slate 50 */
+            --bg-card: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            
+            /* Colores Semánticos */
+            --diplomacy: #10b981; /* Emerald 500 */
+            --retaliation: #f43f5e; /* Rose 500 */
+            --mixed: #8b5cf6; /* Violet 500 */
+            --neutral: #94a3b8;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: var(--bg-body); 
+            color: var(--text-main);
+            line-height: 1.5;
+            padding: 2rem 1rem;
+        }
+
+        .container { max-width: 1200px; margin: 0 auto; }
+
+        /* Header Estilo Reporte */
+        header { 
+            margin-bottom: 2.5rem; 
+            border-left: 4px solid var(--accent);
+            padding-left: 1.5rem;
+        }
+        header h1 { font-size: 1.875rem; font-weight: 700; color: var(--primary); letter-spacing: -0.025em; }
+        header p { color: var(--text-muted); font-size: 0.95rem; margin-top: 0.25rem; }
+
+        /* Tarjetas de Métricas (KPIs) */
+        .metrics-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+            gap: 1.25rem; 
+            margin-bottom: 2.5rem; 
+        }
+        .metric-card { 
+            background: var(--bg-card); 
+            padding: 1.5rem; 
+            border-radius: 12px; 
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.02);
+            border: 1px solid var(--border);
+            transition: transform 0.2s;
+        }
+        .metric-card:hover { transform: translateY(-2px); }
+        .metric-card .label { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.05em; }
+        .metric-card .value { font-size: 1.75rem; font-weight: 700; color: var(--primary); margin: 0.5rem 0; }
+        .metric-card .trend { font-size: 0.75rem; color: var(--accent); font-weight: 500; }
+
+        /* Navegación por Pestañas */
+        .tabs-nav { 
+            display: flex; 
+            gap: 0.5rem; 
+            margin-bottom: 1.5rem; 
+            background: #f1f5f9; 
+            padding: 0.4rem; 
+            border-radius: 10px;
+            width: fit-content;
+            flex-wrap: wrap;
+        }
+        .tab-btn { 
+            padding: 0.6rem 1.25rem; 
+            border: none; 
+            background: transparent; 
+            cursor: pointer; 
+            font-family: inherit;
+            font-size: 0.875rem; 
+            font-weight: 500; 
+            color: var(--text-muted);
+            border-radius: 7px;
+            transition: all 0.2s;
+        }
+        .tab-btn.active { 
+            background: var(--bg-card); 
+            color: var(--accent); 
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+        }
+
+        /* Paneles */
+        .panel { display: none; background: var(--bg-card); border-radius: 16px; border: 1px solid var(--border); padding: 2rem; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.03); }
+        .panel.active { display: block; animation: fadeIn 0.4s ease; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .chart-container { position: relative; width: 100%; height: 450px; }
+        .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+
+        /* Leyendas Custom */
+        .custom-legend { display: flex; gap: 1.5rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+        .legend-item { display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; font-weight: 500; color: var(--text-muted); }
+        .dot { width: 10px; height: 10px; border-radius: 3px; }
+
+        .section-title { font-size: 1rem; font-weight: 600; color: var(--primary); margin-bottom: 1.5rem; }
+        .badge { display: inline-block; font-size: 10px; padding: 2px 7px; border-radius: 20px; font-weight: 600; text-transform: uppercase;}
+        .badge.high { background: #e0e7ff; color: #4338ca; }
+        .badge.mid { background: #fef3c7; color: #b45309; }
+        .badge.low { background: #ffe4e6; color: #e11d48; }
+
+        @media (max-width: 800px) { .two-col { grid-template-columns: 1fr; } .metrics-grid { grid-template-columns: 1fr 1fr; } }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Índice de Liderazgo Comercial</h1>
+        <p>Diplomacia vs Retaliación — 137 países · Grupo 5</p>
+    </header>
+
+    <div class="metrics-grid">
+        <div class="metric-card">
+            <div class="label">Países analizados</div>
+            <div class="value">132</div>
+            <div class="trend">con índice completo</div>
+        </div>
+        <div class="metric-card">
+            <div class="label">Puntaje máximo</div>
+            <div class="value">10.0</div>
+            <div class="trend">United Kingdom</div>
+        </div>
+        <div class="metric-card">
+            <div class="label">Líder retaliación</div>
+            <div class="value">USA</div>
+            <div class="trend">289 disputas OMC</div>
+        </div>
+        <div class="metric-card">
+            <div class="label">Promedio global</div>
+            <div class="value">4.8</div>
+            <div class="trend">idx_final_v2</div>
+        </div>
+    </div>
+
+    <div class="tabs-nav">
+        <button class="tab-btn active" onclick="switchTab('ranking')">Ranking global</button>
+        <button class="tab-btn" onclick="switchTab('scatter')">Diplomacia vs Retaliación</button>
+        <button class="tab-btn" onclick="switchTab('components')">Componentes</button>
+        <button class="tab-btn" onclick="switchTab('gpr')">Riesgo geopolítico</button>
+        <button class="tab-btn" onclick="switchTab('pca')">Análisis PCA</button>
+    </div>
+
+    <div id="panel-ranking" class="panel active">
+        <div class="custom-legend">
+            <div class="legend-item"><span class="badge high">alto</span> Índice ≥ 7</div>
+            <div class="legend-item"><span class="badge mid">medio</span> 4 – 7</div>
+            <div class="legend-item"><span class="badge low">bajo</span> &lt; 4</div>
+        </div>
+        <div class="chart-container" style="height: 500px;">
+            <canvas id="chartRanking"></canvas>
+        </div>
+    </div>
+
+    <div id="panel-scatter" class="panel">
+        <div class="custom-legend">
+            <div class="legend-item"><span class="dot" style="background:var(--diplomacy)"></span> Alta diplomacia</div>
+            <div class="legend-item"><span class="dot" style="background:var(--retaliation)"></span> Alta retaliación</div>
+            <div class="legend-item"><span class="dot" style="background:var(--mixed)"></span> Equilibrado</div>
+            <div class="legend-item"><span class="dot" style="background:var(--neutral)"></span> Bajo desempeño</div>
+        </div>
+        <div class="chart-container">
+            <canvas id="chartScatter"></canvas>
+        </div>
+    </div>
+
+    <div id="panel-components" class="panel">
+        <div class="two-col">
+            <div>
+                <div class="section-title">Sub-índice diplomacia (top 15)</div>
+                <div class="chart-container" style="height: 400px;">
+                    <canvas id="chartDip"></canvas>
+                </div>
+            </div>
+            <div>
+                <div class="section-title">Sub-índice retaliación (top 15)</div>
+                <div class="chart-container" style="height: 400px;">
+                    <canvas id="chartRet"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="panel-gpr" class="panel">
+        <div class="section-title">42 países con dato GPR 2020-2024 (riesgo geopolítico normalizado 0-10)</div>
+        <div class="chart-container">
+            <canvas id="chartGPR"></canvas>
+        </div>
+    </div>
+
+    <div id="panel-pca" class="panel">
+        <div class="two-col">
+            <div>
+                <div class="section-title">PCA — cargas de variables</div>
+                <div style="height: 350px;">
+                    <canvas id="pcaLoadings"></canvas>
+                </div>
+            </div>
+            <div>
+                <div class="section-title">PCA — varianza explicada por componente</div>
+                <div style="height: 350px;">
+                    <canvas id="pcaScree"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+    // Base de datos completa
+    const raw = [
+      ["United Kingdom",10.0,8.047,1.353,1.217],["Singapore",9.677,6.459,0.021,null],["Mexico",8.944,7.497,1.638,0.272],
+      ["Korea",8.530,6.420,0.890,1.053],["Chile",8.507,5.855,0.342,0.0],["Turkey",8.154,5.832,0.598,1.127],
+      ["Japan",8.049,6.057,0.907,0.903],["Germany",7.538,5.469,0.723,2.475],["Malaysia",7.239,4.566,0.057,0.045],
+      ["Peru",7.137,4.608,0.180,0.057],["France",7.110,5.135,0.728,2.336],["Colombia",6.975,4.495,0.194,0.057],
+      ["India",6.628,6.095,2.070,0.858],["Ireland",6.621,4.083,0.062,null],["Austria",6.619,4.019,0.000,null],
+      ["Chinese Taipéi",6.516,3.937,0.000,null],["Indonesia",6.481,4.399,0.489,0.153],["Thailand",6.471,4.191,0.290,0.079],
+      ["Australia",6.407,4.435,0.584,0.599],["Switzerland",6.378,3.958,0.130,0.198],["South Africa",6.371,3.990,0.168,0.227],
+      ["Serbia",6.326,3.787,0.000,null],["Costa Rica",6.243,3.887,0.166,null],["Vietnam",6.121,3.745,0.120,0.164],
+      ["Georgia",6.096,3.604,0.000,null],["Egypt",6.070,3.929,0.345,0.967],["Chequia",6.063,3.579,0.000,null],
+      ["Eslovenia",5.937,3.479,0.000,null],["Philippines",5.901,3.641,0.191,0.097],["Denmark",5.801,3.446,0.075,0.161],
+      ["Eslovaquia",5.786,3.359,0.000,null],["Italy",5.775,3.566,0.215,0.715],["Armenia",5.759,3.380,0.042,null],
+      ["Romania",5.725,3.353,0.042,null],["Sweden",5.715,3.428,0.125,0.394],["Finland",5.696,3.373,0.085,0.305],
+      ["El Salvador",5.681,3.297,0.021,null],["Netherlands",5.657,3.410,0.152,0.384],["Israel",5.613,3.980,0.758,2.707],
+      ["Belgium",5.601,3.518,0.305,0.929],["Argentina",5.562,3.865,0.683,0.048],["Iran",5.560,3.181,0.000,null],
+      ["Brazil",5.497,4.936,1.805,0.232],["Greece",5.479,3.179,0.062,null],["Bulgaria",5.377,3.056,0.021,null],
+      ["Hungary",5.376,3.238,0.204,0.302],["UAE",5.275,2.955,0.000,null],["Lituania",5.216,2.908,0.000,null],
+      ["Spain",5.197,3.037,0.144,0.356],["Bielorrusia",5.171,2.873,0.000,null],["Saudi Arabia",5.128,3.099,0.261,0.771],
+      ["Croacia",5.124,2.836,0.000,null],["Portugal",5.089,2.825,0.018,0.010],["Uruguay",5.056,2.823,0.042,null],
+      ["Bosnia y Herzegovina",5.050,2.777,0.000,null],["Morocco",4.981,2.784,0.062,null],["Guatemala",4.913,2.918,0.249,null],
+      ["Poland",4.913,3.000,0.332,0.919],["Honduras",4.901,2.825,0.166,null],["Kenya",4.812,2.589,0.000,null],
+      ["Norway",4.812,2.748,0.159,0.303],["Nueva Zelandia",4.809,2.586,0.000,null],["Ethiopia",4.762,2.549,0.000,null],
+      ["Bolivia",4.740,2.532,0.000,null],["Líbano",4.735,2.527,0.000,null],["Uzbekistan",4.730,2.523,0.000,null],
+      ["Pakistan",4.724,2.706,0.187,null],["Sri Lanka",4.703,2.523,0.021,null],["Hong Kong",4.659,2.602,0.135,0.482],
+      ["Russia",4.622,4.577,2.138,6.573],["Kuwait",4.499,2.341,0.000,null],["Albania",4.494,2.337,0.000,null],
+      ["Ecuador",4.462,2.437,0.125,null],["Jamaica",4.459,2.309,0.000,null],["Ukraine",4.415,4.055,1.780,5.508],
+      ["Uganda",4.408,2.269,0.000,null],["Túnez",4.407,2.268,0.000,null],["Botswana",4.404,2.266,0.000,null],
+      ["Paraguay",4.391,2.255,0.000,null],["Nicaragua",4.381,2.310,0.062,null],["Zambia",4.367,2.236,0.000,null],
+      ["Cuba",4.358,2.250,0.021,null],["República Dominicana",4.306,2.188,0.000,null],["Jordania",4.244,2.139,0.000,null],
+      ["Namibia",4.153,2.067,0.000,null],["Kirguistán",4.135,2.053,0.000,null],["Benin",4.135,2.053,0.000,null],
+      ["Moldavia",4.112,2.035,0.000,null],["Panamá",4.108,2.031,0.000,null],["Kazajstán",4.059,1.993,0.000,null],
+      ["Senegal",4.045,1.981,0.000,null],["Bangladesh",3.914,1.899,0.021,null],["Omán",3.904,1.870,0.000,null],
+      ["Katar",3.883,1.854,0.000,null],["Laos",3.859,1.834,0.000,null],["Tanzania",3.822,1.805,0.000,null],
+      ["Madagascar",3.801,1.789,0.000,null],["Azerbaiyán",3.770,1.764,0.000,null],["Ghana",3.770,1.764,0.000,null],
+      ["Mozambique",3.670,1.685,0.000,null],["Togo",3.667,1.683,0.000,null],["Côte d'Ivoire",3.645,1.665,0.000,null],
+      ["Gabón",3.559,1.597,0.000,null],["Níger",3.551,1.591,0.000,null],["Venezuela",3.518,1.692,0.127,0.189],
+      ["Camboya",3.510,1.559,0.000,null],["Turkmenistán",3.485,1.538,0.000,null],["Irak",3.455,1.515,0.000,null],
+      ["Argelia",3.417,1.485,0.000,null],["Canada",3.356,5.648,4.211,0.963],["China",3.336,6.572,5.151,3.468],
+      ["Libia",3.311,1.401,0.000,null],["Tayikistán",3.259,1.359,0.000,null],["Yemen",3.254,1.356,0.000,null],
+      ["Angola",3.234,1.340,0.000,null],["Birmania",3.230,1.337,0.000,null],["Zimbabue",3.160,1.281,0.000,null],
+      ["Mauritania",3.108,1.240,0.000,null],["Burkina Faso",3.082,1.219,0.000,null],["Afganistán",2.914,1.087,0.000,null],
+      ["Camerún",2.909,1.083,0.000,null],["Mongolia",2.894,1.071,0.000,null],["Liberia",2.880,1.060,0.000,null],
+      ["Sudán",2.857,1.042,0.000,null],["Malí",2.673,0.896,0.000,null],["Nigeria",2.648,0.876,0.000,null],
+      ["Papua Nueva Guinea",2.417,0.694,0.000,null],["Congo, República del",2.303,0.603,0.000,null],
+      ["Guinea",2.165,0.494,0.000,null],["Congo, República Democrática del",2.073,0.421,0.000,null],
+      ["Chad",1.781,0.190,0.000,null],["United States",0.0,5.881,7.100,10.0]
+    ];
+
+    const dataDash = raw.filter(d => d[1] > 0);
+    dataDash.sort((a,b) => b[1]-a[1]);
+
+    function switchTab(id) {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+        event.target.classList.add('active');
+        document.getElementById('panel-' + id).classList.add('active');
+    }
+
+    // Estilos Globales de Gráficos
+    Chart.defaults.font.family = "'Inter', sans-serif";
+    Chart.defaults.color = '#64748b';
+    const gridStyle = { color: '#f1f5f9', drawBorder: false };
+    
+    function getColor(val) {
+      if(val >= 7) return '#4f46e5';
+      if(val >= 4) return '#b45309';
+      return '#e11d48';
+    }
+
+    // 1. Chart Ranking (Top 25)
+    const top25 = dataDash.slice(0,25);
+    new Chart(document.getElementById('chartRanking'), {
+        type: 'bar',
+        data: {
+            labels: top25.map(d => d[0]),
+            datasets: [{
+                label: 'Índice final v2',
+                data: top25.map(d => d[1]),
+                backgroundColor: top25.map(d => getColor(d[1])),
+                borderRadius: 4,
+                barThickness: 12
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { grid: gridStyle, max: 10 },
+                y: { grid: { display: false } }
+            }
+        }
+    });
+
+    // 2. Chart Scatter
+    new Chart(document.getElementById('chartScatter'), {
+        type: 'scatter',
+        data: {
+            datasets: [{
+                label: 'Países',
+                data: dataDash.map(d => ({ x: d[2], y: d[3], label: d[0] })),
+                backgroundColor: dataDash.map(d => {
+                    if(d[2] > 6 && d[3] < 1.5) return '#10b981'; // Diplomacia
+                    if(d[3] > 3) return '#f43f5e'; // Retaliación
+                    if(d[2] > 4 && d[3] > 1) return '#8b5cf6'; // Mixto
+                    return '#94a3b8'; // Bajo
+                }),
+                pointRadius: 6,
+                pointHoverRadius: 8
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                tooltip: { callbacks: { label: (c) => ` ${c.raw.label}: Dip ${c.raw.x.toFixed(2)}, Ret ${c.raw.y.toFixed(2)}` } },
+                legend: { display: false }
+            },
+            scales: {
+                x: { title: { display: true, text: 'SUB-ÍNDICE DIPLOMACIA' }, grid: gridStyle },
+                y: { title: { display: true, text: 'SUB-ÍNDICE RETALIACIÓN' }, grid: gridStyle }
+            }
+        }
+    });
+
+    // 3. Componentes: Top Diplomacia
+    const topDip = [...dataDash].sort((a,b) => b[2]-a[2]).slice(0,15);
+    new Chart(document.getElementById('chartDip'), {
+        type: 'bar',
+        data: {
+            labels: topDip.map(d => d[0]),
+            datasets: [{
+                data: topDip.map(d => d[2]),
+                backgroundColor: '#10b981',
+                borderRadius: 4,
+                barThickness: 12
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: { x: { grid: gridStyle }, y: { grid: { display: false } } }
+        }
+    });
+
+    // 3. Componentes: Top Retaliación
+    const topRet = [...dataDash].sort((a,b) => b[3]-a[3]).slice(0,15);
+    new Chart(document.getElementById('chartRet'), {
+        type: 'bar',
+        data: {
+            labels: topRet.map(d => d[0]),
+            datasets: [{
+                data: topRet.map(d => d[3]),
+                backgroundColor: '#f43f5e',
+                borderRadius: 4,
+                barThickness: 12
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: { x: { grid: gridStyle }, y: { grid: { display: false } } }
+        }
+    });
+
+    // 4. Riesgo Geopolítico (GPR)
+    const gprData = dataDash.filter(d => d[4] !== null);
+    new Chart(document.getElementById('chartGPR'), {
+        type: 'scatter',
+        data: {
+            datasets: [{
+                label: 'Países con GPR',
+                data: gprData.map(d => ({ x: d[4], y: d[1], label: d[0] })),
+                backgroundColor: '#8b5cf6',
+                pointRadius: 6,
+                pointHoverRadius: 8
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                tooltip: { callbacks: { label: (c) => ` ${c.raw.label}: GPR ${c.raw.x.toFixed(2)}, Índice ${c.raw.y.toFixed(2)}` } },
+                legend: { display: false }
+            },
+            scales: {
+                x: { title: { display: true, text: 'RIESGO GEOPOLÍTICO (0-10)' }, grid: gridStyle },
+                y: { title: { display: true, text: 'ÍNDICE FINAL' }, grid: gridStyle }
+            }
+        }
+    });
+
+    // 5. PCA Loadings
+    const pcaData = [
+        { x: 0.334, y: 0.756, label: 'eci_2023', c: '#10b981' },
+        { x: 0.423, y: -0.496, label: 'escala_retaliacion', c: '#f43f5e' },
+        { x: 0.447, y: 0.264, label: 'num_acuerdos', c: '#10b981' },
+        { x: 0.455, y: -0.296, label: 'total_disputas', c: '#f43f5e' },
+        { x: 0.533, y: -0.196, label: 'total_bloques', c: '#8b5cf6' }
+    ];
+
+    new Chart(document.getElementById('pcaLoadings'), {
+        type: 'scatter',
+        data: {
+            datasets: pcaData.map(d => ({
+                label: d.label,
+                data: [{x: d.x, y: d.y}],
+                backgroundColor: d.c,
+                pointRadius: 8
+            }))
+        },
+        options: {
+            maintainAspectRatio: false,
+            plugins: { 
+                legend: { display: false },
+                tooltip: { callbacks: { label: (c) => ` ${c.dataset.label}` } }
+            },
+            scales: {
+                x: { min: 0.2, max: 0.6, grid: gridStyle, title: { display: true, text: 'PC1' } },
+                y: { min: -0.7, max: 0.9, grid: gridStyle, title: { display: true, text: 'PC2' } }
+            }
+        }
+    });
+
+    // 5. PCA Scree Plot
+    new Chart(document.getElementById('pcaScree'), {
+        type: 'line',
+        data: {
+            labels: ['PC1', 'PC2', 'PC3', 'PC4', 'PC5'],
+            datasets: [{
+                data: [2.47, 0.87, 0.63, 0.61, 0.40],
+                borderColor: '#4f46e5',
+                backgroundColor: '#4f46e5',
+                borderWidth: 2,
+                pointRadius: 5,
+                tension: 0.1
+            }]
+        },
+        options: {
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                y: { beginAtZero: true, grid: gridStyle }
+            }
+        }
+    });
+</script>
+
+</body>
+</html>
